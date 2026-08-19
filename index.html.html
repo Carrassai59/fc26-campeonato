@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#05070b">
+<title>FC26 Arena</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --bg:#05070b;--panel:#0b111b;--card:#0e1622;--card2:#121d2b;--line:#273548;
+ --text:#f7f9fc;--muted:#8e9bad;--accent:#c8ff00;--blue:#00d4ff;--danger:#ff5d73;
+ --ok:#4ade80;--gold:#ffd65a
+}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:
+ radial-gradient(circle at 8% 0,#18250a 0,transparent 20%),
+ radial-gradient(circle at 95% 5%,#08233a 0,transparent 22%),
+ var(--bg);color:var(--text);min-height:100vh}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.wrap{width:min(1500px,95%);margin:auto;padding:26px 0 80px}
+.hero{display:flex;justify-content:space-between;gap:25px;align-items:center;padding:35px 0 25px}
+.eyebrow{font-size:11px;letter-spacing:4px;color:var(--accent);font-weight:900}
+.hero h1{font-size:clamp(46px,7vw,86px);letter-spacing:-5px;line-height:.88;margin:10px 0}
+.hero h1 span{-webkit-text-stroke:1px var(--accent);color:transparent}
+.hero p{color:var(--muted);max-width:780px;line-height:1.55}
+.ball{width:145px;height:145px;border-radius:50%;display:grid;place-items:center;font-size:58px;background:radial-gradient(circle at 35% 30%,#263043,#090d14 70%);border:1px solid #34451b;box-shadow:0 0 75px #c8ff0018}
+.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:17px}
+.live{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);background:#0d1621;border-radius:999px;font-size:11px;font-weight:900;color:#c6d0dc}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--danger);box-shadow:0 0 12px var(--danger);animation:pulse 1.4s infinite}.dot.ok{background:var(--ok);box-shadow:0 0 12px var(--ok)}
+@keyframes pulse{50%{opacity:.35}}
+.adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.status{font-size:11px;color:var(--muted)}
+.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:900;transition:.2s}.btn:hover{transform:translateY(-1px)}
+.primary{background:var(--accent);color:#081000}.secondary{background:#162130;color:#dbe4ee;border:1px solid #2b3a4f}.danger{background:#34131a;color:#ff9cac;border:1px solid #672534}.smallbtn{padding:7px 10px;font-size:11px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:15px;margin-bottom:25px}
+.tabs button{border:0;background:#101824;color:#97a5b8;padding:11px 15px;border-radius:8px;font-size:12px;font-weight:900}.tabs button.active{background:var(--accent);color:#081000}
+.page{display:none}.page.active{display:block}
+.section-title{margin:18px 0}.section-title small{color:var(--accent);font-size:10px;letter-spacing:3px;font-weight:900}.section-title h2{font-size:31px;margin-top:5px}
+.empty{border:1px dashed #344358;border-radius:14px;padding:35px;text-align:center;color:var(--muted);background:#ffffff03}.empty h3{color:#fff;margin-bottom:7px}
+.notice{padding:14px 16px;border-radius:11px;border:1px solid #c8ff0035;background:#c8ff0007;color:#bbc5d2;font-size:12px;line-height:1.55;margin-bottom:18px}.notice strong{color:#fff}
+.hero-current{display:grid;grid-template-columns:1.5fr .8fr;gap:16px;margin-bottom:18px}
+.current-card{border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,#101a27,#0a1019);padding:22px}
+.current-card h2{font-size:30px;margin:5px 0 7px}.current-card p{color:var(--muted);font-size:12px}.format-pill{display:inline-block;padding:6px 9px;border-radius:999px;background:#c8ff0012;border:1px solid #c8ff0035;color:var(--accent);font-size:10px;font-weight:900;letter-spacing:1px}
+.progressbox{display:flex;flex-direction:column;justify-content:center}.progressline{height:9px;border-radius:999px;background:#182231;overflow:hidden;margin:10px 0}.progressline span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#7aff00);width:0}
+.bigmetric{font-size:40px;font-weight:950;letter-spacing:-2px}.metriclabel{color:var(--muted);font-size:11px}
+
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.metric{background:#0d1520;border:1px solid var(--line);border-radius:13px;padding:17px}.metric strong{display:block;font-size:27px;letter-spacing:-1px}.metric span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.gamer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.gamer-card{background:linear-gradient(145deg,#0f1824,#0a1018);border:1px solid var(--line);border-radius:14px;padding:18px;position:relative;overflow:hidden}
+.gamer-card:before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
+.gamer-card .head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.gamer-card h3{font-size:23px}.console{font-size:9px;color:var(--accent);font-weight:900;letter-spacing:1px}
+.statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:14px}.mini{background:#111c29;border:1px solid #202e40;border-radius:9px;padding:9px;text-align:center}.mini strong{display:block;font-size:17px}.mini span{font-size:8px;color:var(--muted);letter-spacing:.7px}
+.bar{height:6px;background:#172130;border-radius:999px;overflow:hidden;margin-top:10px}.bar span{display:block;height:100%;background:var(--accent)}
+.two-col{display:grid;grid-template-columns:1.25fr .75fr;gap:16px}.panel{background:#0b121c;border:1px solid var(--line);border-radius:14px;overflow:hidden}.panelhead{padding:15px 17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.panelhead h3{font-size:16px}.panelbody{padding:14px 16px}.feed-item{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #ffffff0b;font-size:11px}.feed-item:last-child{border:0}.feed-item span{color:var(--muted)}
+
+.groups{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.group{background:#0b121c;border:1px solid var(--line);border-radius:14px;overflow:hidden}.grouphead{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;background:linear-gradient(90deg,#c8ff000e,transparent)}.grouphead span{font-size:9px;color:var(--accent);font-weight:900;letter-spacing:2px}
+.matches{padding:12px}.match{display:grid;grid-template-columns:1fr 42px 16px 42px 1fr;gap:6px;align-items:center;background:#0e1723;border:1px solid #ffffff0a;border-radius:9px;padding:10px;margin-bottom:8px}.home{text-align:right}.away{text-align:left}.team{font-size:12px;font-weight:900}.owner{font-size:8px;color:var(--muted);margin-top:3px}.score{width:42px;height:35px;text-align:center;background:#172332;color:#fff;border:1px solid #34445a;border-radius:6px;font-weight:900;outline:0}.score:focus{border-color:var(--accent)}.score:disabled{opacity:.5}.x{text-align:center;color:#647084;font-size:10px}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:620px}th,td{padding:10px 7px;border-bottom:1px solid #ffffff0b;text-align:center;font-size:10px}th{font-size:8px;color:#708097;letter-spacing:.6px}th:nth-child(2),td:nth-child(2){text-align:left}.pos{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:5px;background:#192433}.qualified .pos{background:var(--accent);color:#071000;font-weight:900}.owner2{display:block;font-size:8px;color:#6e7c8e;margin-top:2px}
+.bracket{display:grid;grid-template-columns:1fr 50px 1fr 50px 1fr;gap:8px;align-items:center}.roundtitle{text-align:center;font-size:9px;color:var(--accent);font-weight:900;letter-spacing:2px;margin-bottom:10px}.ko{background:#0e1723;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:10px 0}.koteam{display:grid;grid-template-columns:1fr 44px;padding:10px 11px;border-bottom:1px solid var(--line);align-items:center;font-size:11px;font-weight:800}.koteam:last-child{border:0}.koscore{width:38px;height:30px;text-align:center;border-radius:5px;border:1px solid #34445a;background:#172332;color:#fff;font-weight:900}.koscore:disabled{opacity:.5}.connector{height:1px;background:linear-gradient(90deg,#293548,var(--accent),#293548)}.champ{text-align:center;padding:16px;border:1px solid #c8ff0040;border-radius:12px;background:#c8ff0007}.cup{font-size:55px}.champ h3{font-size:20px;margin-top:4px}
+
+.scorergrid{display:grid;grid-template-columns:1fr .7fr;gap:16px}.scorerform{display:grid;grid-template-columns:1fr 1fr 100px auto;gap:8px}.input,select,textarea{width:100%;background:#111b28;color:#fff;border:1px solid #334359;border-radius:7px;padding:10px;outline:0}.input:focus,select:focus,textarea:focus{border-color:var(--accent)}textarea{min-height:90px;resize:vertical}.rank1 td{background:#ffd65a0b}.rank2 td{background:#c6d0dc08}.rank3 td{background:#b86f3c08}
+.profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.profile{background:#0d1520;border:1px solid var(--line);border-radius:14px;padding:18px}.profile h3{font-size:24px}.profile .console{margin:5px 0 12px}.profile p{font-size:11px;color:#aab5c4;line-height:1.55}.formation{display:inline-block;margin-top:12px;background:#162230;border:1px solid #293b51;border-radius:7px;padding:7px 9px;font-size:10px;color:#d5deea}
+.history-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.history{background:#0d1520;border:1px solid var(--line);border-radius:13px;padding:16px}.history.active-history{border-color:#c8ff0050}.history h3{font-size:17px;margin:5px 0}.history p{font-size:10px;color:var(--muted);line-height:1.5}.history .actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+
+.modal{position:fixed;inset:0;background:#000b;backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000;overflow:auto}.modal.show{display:flex}.modalcard{width:min(780px,100%);max-height:92vh;overflow:auto;background:#0d1520;border:1px solid #304056;border-radius:16px;padding:22px;box-shadow:0 35px 90px #000a}.modalcard.small{width:min(430px,100%)}.modalcard h3{font-size:24px;margin-bottom:7px}.modalcard>p{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:16px}.field{margin-bottom:11px}.field label{display:block;color:#8795a8;font-size:9px;font-weight:900;letter-spacing:1px;margin-bottom:5px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.teams-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}.teams-col{border:1px solid #253448;background:#101925;border-radius:10px;padding:12px}.teams-col h4{margin-bottom:8px}.teams-col input{margin-bottom:7px}.checkline{display:flex;gap:8px;align-items:center;color:#bac5d2;font-size:11px;margin:10px 0}.modalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.err{color:#ff8c9b;font-size:11px;min-height:16px;margin-top:6px}.toast{position:fixed;right:18px;bottom:18px;background:#0e1723;border:1px solid #334258;border-radius:9px;padding:12px 14px;font-size:11px;font-weight:900;opacity:0;transform:translateY(12px);transition:.2s;pointer-events:none;z-index:1100}.toast.show{opacity:1;transform:none}
+footer{text-align:center;color:#4d5b6e;font-size:9px;letter-spacing:2px;margin-top:50px}
+@media(max-width:1000px){.metrics{grid-template-columns:repeat(3,1fr)}.hero-current,.two-col,.scorergrid{grid-template-columns:1fr}.gamer-grid,.profile-grid,.history-grid{grid-template-columns:1fr}.groups{grid-template-columns:1fr}.bracket{display:block}.connector{width:1px;height:25px;margin:auto}.teams-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.ball{display:none}.hero h1{letter-spacing:-3px}.metrics{grid-template-columns:repeat(2,1fr)}.statrow{grid-template-columns:repeat(2,1fr)}.match{grid-template-columns:1fr 36px 12px 36px 1fr;padding:8px 5px}.score{width:36px}.scorerform,.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+ <div><div class="eyebrow">FC26 • CONSOLE LEAGUE</div><h1>FC26<br><span>ARENA</span></h1><p>Campeonatos, estatísticas, rivalidade e história. Um painel vivo para Marcelo, Soares e Carrassai.</p></div>
+ <div class="ball">⚽</div>
+</header>
+
+<div class="topbar">
+ <div class="live"><span id="liveDot" class="dot"></span><span id="liveText">CONECTANDO...</span></div>
+ <div class="adminbar">
+   <span id="authStatus" class="status">Modo visitante • somente leitura</span>
+   <button id="newBtn" class="btn secondary" style="display:none">＋ Novo campeonato</button>
+   <button id="loginBtn" class="btn primary">🔐 Administrador</button>
+   <button id="logoutBtn" class="btn secondary" style="display:none">Sair</button>
+ </div>
+</div>
+
+<nav class="tabs">
+ <button class="active" onclick="openTab('dashboard',this)">DASHBOARD</button>
+ <button onclick="openTab('competition',this)">CAMPEONATO</button>
+ <button onclick="openTab('scorers',this)">ARTILHARIA</button>
+ <button onclick="openTab('players',this)">JOGADORES</button>
+ <button onclick="openTab('history',this)">HISTÓRICO</button>
+</nav>
+
+<section id="dashboard" class="page active">
+ <div id="dashEmpty" class="empty"><h3>Nenhum campeonato ativo</h3><p>Entre como administrador e crie a primeira temporada da FC26 Arena.</p></div>
+ <div id="dashContent" style="display:none">
+  <div class="hero-current">
+   <div class="current-card"><span id="formatPill" class="format-pill"></span><h2 id="currentName"></h2><p id="currentSub"></p></div>
+   <div class="current-card progressbox"><span class="metriclabel">PROGRESSO DO CAMPEONATO</span><div class="bigmetric" id="progressText">0%</div><div class="progressline"><span id="progressBar"></span></div><span id="progressDetail" class="metriclabel"></span></div>
+  </div>
+  <div class="metrics">
+   <div class="metric"><strong id="mPlayed">0</strong><span>Jogos realizados</span></div>
+   <div class="metric"><strong id="mGoals">0</strong><span>Gols marcados</span></div>
+   <div class="metric"><strong id="mAvg">0.0</strong><span>Média de gols</span></div>
+   <div class="metric"><strong id="mDraws">0</strong><span>Empates</span></div>
+   <div class="metric"><strong id="mLeader">—</strong><span>Líder / campeão</span></div>
+  </div>
+  <div class="section-title"><small>PERFORMANCE DOS GAMERS</small><h2>Quem está mandando?</h2></div>
+  <div id="gamerCards" class="gamer-grid"></div>
+  <div class="two-col">
+   <div class="panel"><div class="panelhead"><h3>Classificação atual</h3><span id="tableHint" class="status"></span></div><div class="panelbody tablewrap" id="dashboardTable"></div></div>
+   <div class="panel"><div class="panelhead"><h3>Últimos resultados</h3></div><div id="recentFeed" class="panelbody"></div></div>
+  </div>
+ </div>
+</section>
+
+<section id="competition" class="page">
+ <div class="section-title"><small>CAMPEONATO ATUAL</small><h2 id="competitionTitle">Partidas e classificação</h2></div>
+ <div id="competitionEmpty" class="empty"><h3>Sem campeonato ativo</h3><p>Crie ou ative um campeonato no painel.</p></div>
+ <div id="competitionContent" style="display:none">
+   <div id="groupCompetition"></div>
+   <div id="leagueCompetition"></div>
+   <div id="knockoutCompetition"></div>
+   <div style="margin-top:15px"><button id="finishBtn" class="btn danger" style="display:none">🏁 Encerrar campeonato</button></div>
+ </div>
+</section>
+
+<section id="scorers" class="page">
+ <div class="section-title"><small>GOLS</small><h2>Artilharia</h2></div>
+ <div id="scorerEmpty" class="empty"><h3>Nenhum campeonato ativo</h3><p>A artilharia é registrada por campeonato.</p></div>
+ <div id="scorerContent" style="display:none" class="scorergrid">
+  <div class="panel"><div class="panelhead"><h3>Ranking de goleadores</h3></div><div class="panelbody tablewrap"><table><thead><tr><th>#</th><th>JOGADOR</th><th>TIME/SELEÇÃO</th><th>GOLS</th></tr></thead><tbody id="scorerTable"></tbody></table></div></div>
+  <div class="panel"><div class="panelhead"><h3>Registrar / atualizar</h3></div><div class="panelbody"><div id="scorerAdmin" style="display:none"><div class="field"><label>NOME DO JOGADOR</label><input id="scorerName" class="input" placeholder="Ex.: Mbappé"></div><div class="field"><label>TIME / SELEÇÃO</label><select id="scorerTeam"></select></div><div class="field"><label>GOLS</label><input id="scorerGoals" class="input" type="number" min="0" value="1"></div><button id="saveScorerBtn" class="btn primary">Salvar artilheiro</button></div><p id="scorerReadOnly" class="status">Somente o administrador registra a artilharia.</p></div></div>
+ </div>
+</section>
+
+<section id="players" class="page">
+ <div class="section-title"><small>PERFIS</small><h2>História dos jogadores</h2></div>
+ <div class="notice">Os estilos abaixo são <strong>editáveis pelo administrador</strong>. Assim vocês constroem o perfil de cada um com base no que realmente acontece nos campeonatos, sem inventar característica no grito.</div>
+ <div id="profileGrid" class="profile-grid"></div>
+</section>
+
+<section id="history" class="page">
+ <div class="section-title"><small>ARQUIVO</small><h2>Campeonatos anteriores</h2></div>
+ <div id="historyGrid" class="history-grid"></div>
+</section>
+
+<footer>FC26 ARENA • MARCELO × SOARES × CARRASSAI</footer>
+</div>
+
+<!-- LOGIN -->
+<div id="loginModal" class="modal"><div class="modalcard small">
+ <h3>Área do administrador</h3><p>Somente Carrassai pode alterar campeonato, placares, artilharia e perfis.</p>
+ <div class="field"><label>E-MAIL</label><input id="emailInput" class="input" type="email" value="felipecarrassai@gmail.com"></div>
+ <div class="field"><label>SENHA</label><input id="passwordInput" class="input" type="password"></div>
+ <div id="loginError" class="err"></div>
+ <div class="modalactions"><button class="btn secondary" data-close="loginModal">Cancelar</button><button id="confirmLogin" class="btn primary">Entrar</button></div>
+</div></div>
+
+<!-- NOVO CAMPEONATO -->
+<div id="newModal" class="modal"><div class="modalcard">
+ <h3>Novo campeonato</h3><p>Os três gamers ficam fixos. Você só troca os quatro times/seleções de cada um e escolhe o formato.</p>
+ <div class="form-grid">
+  <div class="field"><label>NOME</label><input id="champName" class="input" value="FC26 Championship #2"></div>
+  <div class="field"><label>FORMATO</label><select id="champFormat"><option value="groups_knockout">4 grupos + mata-mata</option><option value="league_double">Pontos corridos • turno e returno</option></select></div>
+ </div>
+ <label class="checkline"><input id="blockCM" type="checkbox"> Na fase de grupos, impedir Carrassai × Marcelo (classificação passa a usar aproveitamento)</label>
+ <div class="teams-grid">
+   <div class="teams-col"><h4>Marcelo • Xbox One</h4><input class="input teaminput" data-owner="Marcelo" value="França"><input class="input teaminput" data-owner="Marcelo" value="Brasil"><input class="input teaminput" data-owner="Marcelo" value="Holanda"><input class="input teaminput" data-owner="Marcelo" value="Marrocos"></div>
+   <div class="teams-col"><h4>Soares • PS5</h4><input class="input teaminput" data-owner="Soares" value="Espanha"><input class="input teaminput" data-owner="Soares" value="Alemanha"><input class="input teaminput" data-owner="Soares" value="Noruega"><input class="input teaminput" data-owner="Soares" value="Argentina"></div>
+   <div class="teams-col"><h4>Carrassai • PS5</h4><input class="input teaminput" data-owner="Carrassai" value="Inglaterra"><input class="input teaminput" data-owner="Carrassai" value="Portugal"><input class="input teaminput" data-owner="Carrassai" value="Bélgica"><input class="input teaminput" data-owner="Carrassai" value="Uruguai"></div>
+ </div>
+ <div id="newError" class="err"></div>
+ <div class="modalactions"><button class="btn secondary" data-close="newModal">Cancelar</button><button id="createBtn" class="btn primary">Gerar campeonato</button></div>
+</div></div>
+
+<!-- PERFIL -->
+<div id="profileModal" class="modal"><div class="modalcard small">
+ <h3 id="profileModalTitle">Editar perfil</h3>
+ <div class="field"><label>CONSOLE</label><input id="pConsole" class="input"></div>
+ <div class="field"><label>FORMAÇÃO FAVORITA</label><input id="pFormation" class="input" placeholder="Ex.: 4-2-3-1"></div>
+ <div class="field"><label>ESTILO DE JOGO</label><textarea id="pStyle" placeholder="Ex.: jogo vertical, pressão alta, posse..."></textarea></div>
+ <div class="field"><label>RESUMO / HISTÓRICO</label><textarea id="pSummary" placeholder="Anotações sobre evolução, rivalidades, títulos, pontos fortes..."></textarea></div>
+ <div class="modalactions"><button class="btn secondary" data-close="profileModal">Cancelar</button><button id="saveProfileBtn" class="btn primary">Salvar perfil</button></div>
+</div></div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+function openTab(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");b.classList.add("active")}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js";
+import { getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
+import { getFirestore,collection,doc,onSnapshot,setDoc,updateDoc,serverTimestamp,getDoc } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyCta_8em_mUqFplPTC1BJ2XfBtuLhlIObM",authDomain:"fc26-campeonato.firebaseapp.com",projectId:"fc26-campeonato",storageBucket:"fc26-campeonato.firebasestorage.app",messagingSenderId:"254105840906",appId:"1:254105840906:web:94ef838b1be1ee2fd95ef3",measurementId:"G-CZ0JSG2JQG"};
+const ADMIN_EMAIL="felipecarrassai@gmail.com";
+const owners=["Marcelo","Soares","Carrassai"];
+const defaultProfiles={
+ Marcelo:{console:"Xbox One",formation:"Em construção",style:"Perfil em construção. Registre aqui o estilo que se repetir ao longo dos campeonatos.",summary:"Histórico ainda sendo formado na FC26 Arena."},
+ Soares:{console:"PS5",formation:"Em construção",style:"Perfil em construção. Registre aqui o estilo que se repetir ao longo dos campeonatos.",summary:"Histórico ainda sendo formado na FC26 Arena."},
+ Carrassai:{console:"PS5",formation:"Em construção",style:"Perfil em construção. Registre aqui o estilo que se repetir ao longo dos campeonatos.",summary:"Histórico ainda sendo formado na FC26 Arena."}
+};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const metaRef=doc(db,"settings","main");
+let isAdmin=false,activeId=null,active=null,allChamps=[],profiles=structuredClone(defaultProfiles),saveTimer=null,editingProfile=null;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const toast=msg=>{const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2100)};
+const slug=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+function setLive(ok,text){$("#liveDot").classList.toggle("ok",ok);$("#liveText").textContent=text}
+function fmtDate(ts){try{return ts?.toDate().toLocaleDateString("pt-BR")||"—"}catch{return "—"}}
+function openModal(id){$("#"+id).classList.add("show")}
+function closeModal(id){$("#"+id).classList.remove("show")}
+$$("[data-close]").forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+$$(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)closeModal(m.id)}));
+
+function teamsMap(c=active){
+ const map={}; if(!c)return map;
+ for(const o of owners)(c.teams?.[o]||[]).forEach(t=>map[t]={owner:o});
+ return map
+}
+function allTeams(c=active){return owners.flatMap(o=>(c?.teams?.[o]||[]).map(name=>({name,owner:o})))}
+
+function generateGroupTournament(name,teams,blockCM){
+ const groups={A:[teams.Carrassai[0],teams.Soares[0],teams.Marcelo[0]],B:[teams.Carrassai[1],teams.Soares[1],teams.Marcelo[1]],C:[teams.Carrassai[2],teams.Soares[2],teams.Marcelo[2]],D:[teams.Carrassai[3],teams.Soares[3],teams.Marcelo[3]]};
+ const tm={};owners.forEach(o=>teams[o].forEach(t=>tm[t]=o));
+ const matches=[];
+ Object.entries(groups).forEach(([g,arr])=>{
+   let pairs=[[arr[0],arr[1]],[arr[0],arr[2]],[arr[1],arr[2]]];
+   if(blockCM)pairs=pairs.filter(([a,b])=>!([tm[a],tm[b]].includes("Carrassai")&&[tm[a],tm[b]].includes("Marcelo")));
+   pairs.forEach((p,i)=>matches.push({id:`g${g}${i+1}`,stage:"group",group:g,home:p[0],away:p[1],homeScore:null,awayScore:null}));
+ });
+ ["qf1","qf2","qf3","qf4","sf1","sf2","final"].forEach(id=>matches.push({id,stage:id.startsWith("qf")?"qf":id.startsWith("sf")?"sf":"final",homeScore:null,awayScore:null}));
+ return {name,format:"groups_knockout",status:"active",teams,rules:{blockCarrassaiMarcelo:blockCM},groups,matches,scorers:[],createdAt:serverTimestamp(),updatedAt:serverTimestamp(),champion:null}
+}
+function generateLeagueTournament(name,teams){
+ const flat=owners.flatMap(o=>teams[o].map(name=>({name,owner:o})));
+ const first=[];
+ for(let i=0;i<flat.length;i++)for(let j=i+1;j<flat.length;j++)if(flat[i].owner!==flat[j].owner)first.push({id:`t${first.length+1}`,stage:"league",leg:1,home:flat[i].name,away:flat[j].name,homeScore:null,awayScore:null});
+ const second=first.map((m,i)=>({id:`r${i+1}`,stage:"league",leg:2,home:m.away,away:m.home,homeScore:null,awayScore:null}));
+ return {name,format:"league_double",status:"active",teams,rules:{},matches:[...first,...second],scorers:[],createdAt:serverTimestamp(),updatedAt:serverTimestamp(),champion:null}
+}
+
+function playedMatches(c=active){return (c?.matches||[]).filter(m=>m.homeScore!==null&&m.awayScore!==null&&resolveTeamsForMatch(c,m).home&&resolveTeamsForMatch(c,m).away)}
+function matchWinner(c,m){const r=resolveTeamsForMatch(c,m);if(!r.home||!r.away||m.homeScore===null||m.awayScore===null||+m.homeScore===+m.awayScore)return null;return +m.homeScore>+m.awayScore?r.home:r.away}
+
+function standingsFor(c,filterGroup=null){
+ const map=teamsMap(c),st={};
+ allTeams(c).forEach(t=>st[t.name]={name:t.name,owner:t.owner,j:0,v:0,e:0,d:0,gp:0,gc:0,sg:0,pts:0,apr:0});
+ (c.matches||[]).filter(m=>(c.format==="league_double"?m.stage==="league":m.stage==="group"&&(!filterGroup||m.group===filterGroup))).forEach(m=>{
+   if(m.homeScore===null||m.awayScore===null)return;
+   const A=st[m.home],B=st[m.away];if(!A||!B)return;const h=+m.homeScore,a=+m.awayScore;A.j++;B.j++;A.gp+=h;A.gc+=a;B.gp+=a;B.gc+=h;
+   if(h>a){A.v++;B.d++;A.pts+=3}else if(a>h){B.v++;A.d++;B.pts+=3}else{A.e++;B.e++;A.pts++;B.pts++}
+ });
+ Object.values(st).forEach(t=>{t.sg=t.gp-t.gc;t.apr=t.j?t.pts/(t.j*3)*100:0});
+ let arr=Object.values(st);
+ if(filterGroup&&c.groups)arr=arr.filter(t=>c.groups[filterGroup].includes(t.name));
+ return arr.sort((a,b)=>{
+   if(c.format==="groups_knockout"&&c.rules?.blockCarrassaiMarcelo)return b.apr-a.apr||b.sg-a.sg||b.gp-a.gp||b.pts-a.pts||a.name.localeCompare(b.name);
+   return b.pts-a.pts||b.sg-a.sg||b.gp-a.gp||b.v-a.v||a.name.localeCompare(b.name)
+ })
+}
+function seedTeam(c,seed){
+ const [g,p]=seed.split("");return standingsFor(c,g)[Number(p)-1]?.name||null
+}
+function resolveTeamsForMatch(c,m){
+ if(m.stage==="group"||m.stage==="league")return{home:m.home,away:m.away};
+ if(m.id==="qf1")return{home:seedTeam(c,"A1"),away:seedTeam(c,"B2")};
+ if(m.id==="qf2")return{home:seedTeam(c,"C1"),away:seedTeam(c,"D2")};
+ if(m.id==="qf3")return{home:seedTeam(c,"B1"),away:seedTeam(c,"A2")};
+ if(m.id==="qf4")return{home:seedTeam(c,"D1"),away:seedTeam(c,"C2")};
+ const wm=id=>{const x=c.matches.find(z=>z.id===id);return x?matchWinner(c,x):null};
+ if(m.id==="sf1")return{home:wm("qf1"),away:wm("qf2")};
+ if(m.id==="sf2")return{home:wm("qf3"),away:wm("qf4")};
+ if(m.id==="final")return{home:wm("sf1"),away:wm("sf2")};
+ return{home:null,away:null}
+}
+
+function gamerStats(c){
+ const result={};owners.forEach(o=>result[o]={j:0,v:0,e:0,d:0,gp:0,gc:0});
+ playedMatches(c).forEach(m=>{
+   const r=resolveTeamsForMatch(c,m),map=teamsMap(c),ho=map[r.home],ao=map[r.away];if(!ho||!ao)return;
+   const h=+m.homeScore,a=+m.awayScore;result[ho].j++;result[ao].j++;result[ho].gp+=h;result[ho].gc+=a;result[ao].gp+=a;result[ao].gc+=h;
+   if(h>a){result[ho].v++;result[ao].d++}else if(a>h){result[ao].v++;result[ho].d++}else{result[ho].e++;result[ao].e++}
+ });
+ owners.forEach(o=>result[o].win=result[o].j?result[o].v/result[o].j*100:0);return result
+}
+
+function totalCompetitiveMatches(c){
+ if(!c)return 0;
+ return c.matches.filter(m=>m.stage==="group"||m.stage==="league"||m.stage==="qf"||m.stage==="sf"||m.stage==="final").length
+}
+
+function tableHTML(arr,qualified=0){
+ return `<table><thead><tr><th>#</th><th>TIME / SELEÇÃO</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>PTS</th><th>APR</th></tr></thead><tbody>${arr.map((t,i)=>`<tr class="${i<qualified?"qualified":""}"><td><span class="pos">${i+1}</span></td><td><strong>${esc(t.name)}</strong><span class="owner2">${t.owner}</span></td><td>${t.j}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td><td>${t.gp}</td><td>${t.gc}</td><td>${t.sg>0?"+":""}${t.sg}</td><td><strong>${t.pts}</strong></td><td>${t.apr.toFixed(0)}%</td></tr>`).join("")}</tbody></table>`
+}
+
+function renderDashboard(){
+ const has=!!active;$("#dashEmpty").style.display=has?"none":"block";$("#dashContent").style.display=has?"block":"none";if(!has)return;
+ $("#formatPill").textContent=active.format==="groups_knockout"?"GRUPOS + MATA-MATA":"PONTOS CORRIDOS • TURNO E RETURNO";
+ $("#currentName").textContent=active.name;$("#currentSub").textContent=`Criado em ${fmtDate(active.createdAt)} • ${active.status==="active"?"Em andamento":"Encerrado"}`;
+ const played=playedMatches(active),total=totalCompetitiveMatches(active),goals=played.reduce((s,m)=>s+(+m.homeScore)+(+m.awayScore),0),draws=played.filter(m=>+m.homeScore===+m.awayScore).length,pct=total?Math.round(played.length/total*100):0;
+ $("#progressText").textContent=pct+"%";$("#progressBar").style.width=pct+"%";$("#progressDetail").textContent=`${played.length} de ${total} jogos`;
+ $("#mPlayed").textContent=played.length;$("#mGoals").textContent=goals;$("#mAvg").textContent=played.length?(goals/played.length).toFixed(2):"0.00";$("#mDraws").textContent=draws;
+ let leader="—";if(active.format==="league_double")leader=standingsFor(active)[0]?.name||"—";else{const fin=active.matches.find(m=>m.id==="final"),w=fin?matchWinner(active,fin):null;leader=w||"Em disputa"}$("#mLeader").textContent=leader;
+ const gs=gamerStats(active);$("#gamerCards").innerHTML=owners.map(o=>{const s=gs[o],p=profiles[o]||{};return `<div class="gamer-card"><div class="head"><div><span class="console">${esc(p.console||"")}</span><h3>${o}</h3></div><span class="format-pill">${s.win.toFixed(0)}% VITÓRIAS</span></div><div class="statrow"><div class="mini"><strong>${s.j}</strong><span>JOGOS</span></div><div class="mini"><strong>${s.v}</strong><span>VITÓRIAS</span></div><div class="mini"><strong>${s.e}</strong><span>EMPATES</span></div><div class="mini"><strong>${s.d}</strong><span>DERROTAS</span></div></div><div class="bar"><span style="width:${s.win}%"></span></div></div>`}).join("");
+ if(active.format==="league_double"){$("#dashboardTable").innerHTML=tableHTML(standingsFor(active));$("#tableHint").textContent="Tabela geral"}else{$("#dashboardTable").innerHTML=Object.keys(active.groups||{}).map(g=>`<div style="margin-bottom:14px"><strong style="font-size:11px">Grupo ${g}</strong>${tableHTML(standingsFor(active,g),2)}</div>`).join("");$("#tableHint").textContent="2 por grupo"}
+ const recent=[...played].slice(-6).reverse();$("#recentFeed").innerHTML=recent.length?recent.map(m=>{const r=resolveTeamsForMatch(active,m);return `<div class="feed-item"><strong>${esc(r.home)} ${m.homeScore} × ${m.awayScore} ${esc(r.away)}</strong><span>${m.stage.toUpperCase()}</span></div>`}).join(""):`<span class="status">Nenhum resultado lançado ainda.</span>`;
+}
+
+function renderCompetition(){
+ const has=!!active;$("#competitionEmpty").style.display=has?"none":"block";$("#competitionContent").style.display=has?"block":"none";if(!has)return;
+ $("#competitionTitle").textContent=active.name;$("#finishBtn").style.display=isAdmin&&active.status==="active"?"inline-block":"none";
+ $("#groupCompetition").innerHTML="";$("#leagueCompetition").innerHTML="";$("#knockoutCompetition").innerHTML="";
+ if(active.format==="groups_knockout")renderGroups();else renderLeague();
+ renderKnockout();
+}
+function matchCard(m){
+ const r=resolveTeamsForMatch(active,m),map=teamsMap(active),disabled=!isAdmin||active.status!=="active"||!r.home||!r.away;
+ return `<div class="match"><div class="home"><div class="team">${esc(r.home||"A definir")}</div><div class="owner">${map[r.home]||""}</div></div><input class="score" type="number" min="0" data-mid="${m.id}" data-side="homeScore" value="${m.homeScore??""}" ${disabled?"disabled":""}><div class="x">X</div><input class="score" type="number" min="0" data-mid="${m.id}" data-side="awayScore" value="${m.awayScore??""}" ${disabled?"disabled":""}><div class="away"><div class="team">${esc(r.away||"A definir")}</div><div class="owner">${map[r.away]||""}</div></div></div>`
+}
+function bindScores(){$$(".score").forEach(x=>x.addEventListener("change",async()=>{if(!isAdmin||!active)return;const m=active.matches.find(z=>z.id===x.dataset.mid);if(!m)return;m[x.dataset.side]=x.value===""?null:Number(x.value);await saveActive();renderAll()}))}
+function renderGroups(){
+ $("#groupCompetition").innerHTML=`<div class="groups">${Object.keys(active.groups||{}).map(g=>`<div class="group"><div class="grouphead"><h3>Grupo ${g}</h3><span>2 CLASSIFICAM</span></div><div class="matches">${active.matches.filter(m=>m.stage==="group"&&m.group===g).map(matchCard).join("")}</div><div class="tablewrap">${tableHTML(standingsFor(active,g),2)}</div></div>`).join("")}</div>`;bindScores()
+}
+function renderLeague(){
+ const turno=active.matches.filter(m=>m.stage==="league"&&m.leg===1),ret=active.matches.filter(m=>m.stage==="league"&&m.leg===2);
+ $("#leagueCompetition").innerHTML=`<div class="panel" style="margin-bottom:16px"><div class="panelhead"><h3>Tabela geral</h3></div><div class="panelbody tablewrap">${tableHTML(standingsFor(active))}</div></div><div class="two-col"><div class="panel"><div class="panelhead"><h3>Turno</h3><span class="status">${turno.length} jogos</span></div><div class="matches">${turno.map(matchCard).join("")}</div></div><div class="panel"><div class="panelhead"><h3>Returno</h3><span class="status">${ret.length} jogos</span></div><div class="matches">${ret.map(matchCard).join("")}</div></div></div>`;bindScores()
+}
+function renderKnockout(){
+ if(active.format!=="groups_knockout"){ $("#knockoutCompetition").innerHTML="";return}
+ const q=active.matches.filter(m=>m.stage==="qf"),s=active.matches.filter(m=>m.stage==="sf"),f=active.matches.find(m=>m.stage==="final");
+ $("#knockoutCompetition").innerHTML=`<div class="section-title"><small>MATA-MATA</small><h2>Road to Glory</h2></div><div class="bracket"><div><div class="roundtitle">QUARTAS</div>${q.map(m=>`<div class="ko">${koRows(m)}</div>`).join("")}</div><div class="connector"></div><div><div class="roundtitle">SEMIFINAIS</div>${s.map(m=>`<div class="ko">${koRows(m)}</div>`).join("")}</div><div class="connector"></div><div><div class="roundtitle">FINAL</div><div class="ko">${koRows(f)}</div><div class="champ"><div class="cup">🏆</div><small style="color:var(--accent)">CAMPEÃO</small><h3>${esc(matchWinner(active,f)||active.champion||"A DEFINIR")}</h3></div></div></div>`;bindKo()
+}
+function koRows(m){const r=resolveTeamsForMatch(active,m),disabled=!isAdmin||active.status!=="active"||!r.home||!r.away;return `<div class="koteam"><span>${esc(r.home||"A definir")}</span><input class="koscore" type="number" min="0" data-mid="${m.id}" data-side="homeScore" value="${m.homeScore??""}" ${disabled?"disabled":""}></div><div class="koteam"><span>${esc(r.away||"A definir")}</span><input class="koscore" type="number" min="0" data-mid="${m.id}" data-side="awayScore" value="${m.awayScore??""}" ${disabled?"disabled":""}></div>`}
+function bindKo(){$$(".koscore").forEach(x=>x.addEventListener("change",async()=>{if(!isAdmin)return;const m=active.matches.find(z=>z.id===x.dataset.mid);m[x.dataset.side]=x.value===""?null:Number(x.value);await saveActive();renderAll()}))}
+
+function renderScorers(){
+ const has=!!active;$("#scorerEmpty").style.display=has?"none":"block";$("#scorerContent").style.display=has?"grid":"none";if(!has)return;
+ const list=[...(active.scorers||[])].sort((a,b)=>b.goals-a.goals||a.name.localeCompare(b.name));$("#scorerTable").innerHTML=list.length?list.map((s,i)=>`<tr class="rank${i+1}"><td>${i+1}</td><td><strong>${esc(s.name)}</strong></td><td>${esc(s.team)}</td><td><strong>${s.goals}</strong></td></tr>`).join(""):`<tr><td colspan="4">Nenhum artilheiro registrado.</td></tr>`;
+ $("#scorerAdmin").style.display=isAdmin&&active.status==="active"?"block":"none";$("#scorerReadOnly").style.display=isAdmin&&active.status==="active"?"none":"block";$("#scorerTeam").innerHTML=allTeams(active).map(t=>`<option>${esc(t.name)}</option>`).join("")
+}
+$("#saveScorerBtn").onclick=async()=>{if(!isAdmin||!active)return;const name=$("#scorerName").value.trim(),team=$("#scorerTeam").value,goals=Number($("#scorerGoals").value||0);if(!name)return toast("Informe o nome do jogador");active.scorers=active.scorers||[];const ex=active.scorers.find(s=>s.name.toLowerCase()===name.toLowerCase()&&s.team===team);if(ex)ex.goals=goals;else active.scorers.push({name,team,goals});await saveActive();$("#scorerName").value="";renderAll();toast("Artilharia atualizada")}
+
+function renderProfiles(){
+ $("#profileGrid").innerHTML=owners.map(o=>{const p=profiles[o]||defaultProfiles[o];return `<div class="profile"><h3>${o}</h3><div class="console">${esc(p.console)}</div><p><strong style="color:#fff">Estilo:</strong> ${esc(p.style)}</p><p style="margin-top:8px"><strong style="color:#fff">Resumo:</strong> ${esc(p.summary)}</p><span class="formation">Formação: ${esc(p.formation)}</span>${isAdmin?`<div style="margin-top:12px"><button class="btn secondary smallbtn editProfile" data-owner="${o}">Editar perfil</button></div>`:""}</div>`}).join("");
+ $$(".editProfile").forEach(b=>b.onclick=()=>{editingProfile=b.dataset.owner;const p=profiles[editingProfile]||defaultProfiles[editingProfile];$("#profileModalTitle").textContent=`Editar ${editingProfile}`;$("#pConsole").value=p.console;$("#pFormation").value=p.formation;$("#pStyle").value=p.style;$("#pSummary").value=p.summary;openModal("profileModal")})
+}
+$("#saveProfileBtn").onclick=async()=>{if(!isAdmin||!editingProfile)return;profiles[editingProfile]={console:$("#pConsole").value.trim(),formation:$("#pFormation").value.trim(),style:$("#pStyle").value.trim(),summary:$("#pSummary").value.trim()};await setDoc(metaRef,{profiles},{merge:true});closeModal("profileModal");renderAll();toast("Perfil salvo")}
+
+function renderHistory(){
+ $("#historyGrid").innerHTML=allChamps.length?allChamps.map(c=>`<div class="history ${c.id===activeId?"active-history":""}"><span class="format-pill">${c.format==="groups_knockout"?"GRUPOS + MATA-MATA":"PONTOS CORRIDOS"}</span><h3>${esc(c.name)}</h3><p>${c.status==="active"?"Em andamento":"Encerrado"} • ${fmtDate(c.createdAt)}</p><p style="margin-top:5px">Campeão: <strong style="color:#fff">${esc(c.champion||"—")}</strong></p><div class="actions">${c.id!==activeId?`<button class="btn secondary smallbtn activateChamp" data-id="${c.id}">${isAdmin?"Ativar":"Ver campeonato"}</button>`:"<span class='status'>Campeonato atual</span>"}</div></div>`).join(""):`<div class="empty"><h3>Sem histórico ainda</h3><p>Os campeonatos encerrados ficam guardados aqui.</p></div>`;
+ $$(".activateChamp").forEach(b=>b.onclick=async()=>{if(isAdmin){await setDoc(metaRef,{activeTournamentId:b.dataset.id},{merge:true});toast("Campeonato ativado")}else{activeId=b.dataset.id;active=allChamps.find(c=>c.id===activeId)||null;renderAll();document.querySelector('.tabs button').click()}})
+}
+
+function renderAll(){renderDashboard();renderCompetition();renderScorers();renderProfiles();renderHistory()}
+
+async function saveActive(){
+ if(!isAdmin||!active)return;
+ let champion=active.champion;
+ if(active.format==="groups_knockout"){const f=active.matches.find(m=>m.id==="final");champion=matchWinner(active,f)||champion}
+ if(active.format==="league_double"&&playedMatches(active).filter(m=>m.stage==="league").length===active.matches.filter(m=>m.stage==="league").length)champion=standingsFor(active)[0]?.name||champion;
+ active.champion=champion;
+ const clean=JSON.parse(JSON.stringify(active,(k,v)=>k==="createdAt"&&v&&typeof v.toDate==="function"?v:v));
+ await setDoc(doc(db,"championships",activeId),{...clean,updatedAt:serverTimestamp()},{merge:true})
+}
+
+$("#newBtn").onclick=()=>openModal("newModal");
+$("#createBtn").onclick=async()=>{
+ if(!isAdmin)return;
+ const name=$("#champName").value.trim(),format=$("#champFormat").value,block=$("#blockCM").checked,teams={Marcelo:[],Soares:[],Carrassai:[]};
+ $$(".teaminput").forEach(i=>teams[i.dataset.owner].push(i.value.trim()));
+ const vals=owners.flatMap(o=>teams[o]);if(!name)return $("#newError").textContent="Informe o nome do campeonato.";if(vals.some(x=>!x))return $("#newError").textContent="Preencha os 12 times/seleções.";if(new Set(vals.map(x=>x.toLowerCase())).size!==12)return $("#newError").textContent="Os 12 times/seleções precisam ser diferentes.";
+ const id=`${Date.now()}-${slug(name)}`,data=format==="groups_knockout"?generateGroupTournament(name,teams,block):generateLeagueTournament(name,teams);
+ await setDoc(doc(db,"championships",id),data);await setDoc(metaRef,{activeTournamentId:id,profiles},{merge:true});closeModal("newModal");toast("Novo campeonato criado")
+}
+
+$("#finishBtn").onclick=async()=>{if(!isAdmin||!active)return;if(!confirm("Encerrar este campeonato? Ele continuará salvo no histórico."))return;let champion=active.champion;if(active.format==="groups_knockout"){const f=active.matches.find(m=>m.id==="final");champion=matchWinner(active,f)||champion}else champion=standingsFor(active)[0]?.name||champion;await updateDoc(doc(db,"championships",activeId),{status:"finished",champion:champion||null,finishedAt:serverTimestamp(),updatedAt:serverTimestamp()});toast("Campeonato encerrado")}
+
+$("#loginBtn").onclick=()=>openModal("loginModal");
+$("#confirmLogin").onclick=async()=>{try{const c=await signInWithEmailAndPassword(auth,$("#emailInput").value.trim(),$("#passwordInput").value);if(c.user.email?.toLowerCase()!==ADMIN_EMAIL.toLowerCase()){await signOut(auth);throw new Error()}closeModal("loginModal");$("#passwordInput").value="";toast("Administrador conectado")}catch(e){$("#loginError").textContent="Login inválido ou usuário não autorizado."}};
+$("#passwordInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("#confirmLogin").click()});
+$("#logoutBtn").onclick=()=>signOut(auth);
+
+onAuthStateChanged(auth,user=>{isAdmin=!!(user&&user.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase());$("#newBtn").style.display=isAdmin?"inline-block":"none";$("#loginBtn").style.display=isAdmin?"none":"inline-block";$("#logoutBtn").style.display=isAdmin?"inline-block":"none";$("#authStatus").textContent=isAdmin?`Administrador • ${user.email}`:"Modo visitante • somente leitura";renderAll()});
+
+onSnapshot(metaRef,snap=>{const d=snap.data()||{};activeId=d.activeTournamentId||null;profiles=d.profiles||structuredClone(defaultProfiles);active=allChamps.find(c=>c.id===activeId)||null;renderAll()});
+onSnapshot(collection(db,"championships"),snap=>{allChamps=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{const at=a.createdAt?.seconds||0,bt=b.createdAt?.seconds||0;return bt-at});active=allChamps.find(c=>c.id===activeId)||null;setLive(true,"AO VIVO • SINCRONIZADO");renderAll()},err=>{console.error(err);setLive(false,"ERRO DE CONEXÃO")});
+</script>
+</body>
+</html>
